@@ -1,13 +1,17 @@
+using System.Threading.Tasks;
+using CodeFuller.Library.Logging;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 namespace IdentityServer
 {
 	public static class Program
 	{
-		public static void Main(string[] args)
+		public static async Task Main(string[] args)
 		{
-			CreateHostBuilder(args).Build().Run();
+			await CreateHostBuilder(args).Build().RunAsync();
 		}
 
 		public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -15,6 +19,11 @@ namespace IdentityServer
 				.ConfigureWebHostDefaults(webBuilder =>
 				{
 					webBuilder.UseStartup<Startup>();
+				})
+				.ConfigureLogging((hostingContext, loggingBuilder) =>
+				{
+					loggingBuilder.ClearProviders();
+					loggingBuilder.AddLogging(settings => hostingContext.Configuration.Bind("logging", settings));
 				});
 	}
 }
