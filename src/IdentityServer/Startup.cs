@@ -1,14 +1,24 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 namespace IdentityServer
 {
 	public class Startup
 	{
-		public void ConfigureServices()
+		public void ConfigureServices(IServiceCollection services)
 		{
+			var builder = services.AddIdentityServer(options =>
+				{
+					options.EmitStaticAudienceClaim = true;
+				})
+				.AddInMemoryIdentityResources(Config.IdentityResources)
+				.AddInMemoryApiScopes(Config.ApiScopes)
+				.AddInMemoryClients(Config.Clients);
+
+			builder.AddDeveloperSigningCredential();
 		}
 
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -19,6 +29,8 @@ namespace IdentityServer
 			}
 
 			app.UseRouting();
+
+			app.UseIdentityServer();
 
 			app.UseEndpoints(endpoints =>
 			{
